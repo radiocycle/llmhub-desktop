@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.text.style.TextOverflow
 import dev.radiocycle.llmhub.core.AppJson
@@ -108,6 +109,7 @@ private fun UserMessage(message: ChatMessage) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AssistantMessage(
     message: ChatMessage,
@@ -388,31 +390,30 @@ fun extractToolArgument(name: String, argumentsJson: String): String? {
     val fromJson = runCatching {
         val element = AppJson.parseToJsonElement(argumentsJson)
         val obj = element as? JsonObject ?: return@runCatching null
-        val (rawVal, shouldQuote) = when (name) {
-            "web_search" -> (obj["query"]?.jsonPrimitive?.contentOrNull) to true
-            "web_fetch" -> (obj["url"]?.jsonPrimitive?.contentOrNull) to true
-            "shell" -> (obj["command"]?.jsonPrimitive?.contentOrNull) to false
+        val pair = when (name) {
+            "web_search" -> obj["query"]?.jsonPrimitive?.contentOrNull?.let { it to true }
+            "web_fetch" -> obj["url"]?.jsonPrimitive?.contentOrNull?.let { it to true }
+            "shell" -> obj["command"]?.jsonPrimitive?.contentOrNull?.let { it to false }
             "read_file", "write_file", "edit_file", "delete_file", "list_files" ->
-                (obj["path"]?.jsonPrimitive?.contentOrNull) to false
-            "exec_js" -> (obj["code"]?.jsonPrimitive?.contentOrNull) to false
-            else -> {
-                val candidate = obj["query"]?.jsonPrimitive?.contentOrNull?.let { it to true }
-                    ?: obj["url"]?.jsonPrimitive?.contentOrNull?.let { it to true }
-                    ?: obj["command"]?.jsonPrimitive?.contentOrNull?.let { it to false }
-                    ?: obj["cmd"]?.jsonPrimitive?.contentOrNull?.let { it to false }
-                    ?: obj["path"]?.jsonPrimitive?.contentOrNull?.let { it to false }
-                    ?: obj["file"]?.jsonPrimitive?.contentOrNull?.let { it to false }
-                    ?: obj["filename"]?.jsonPrimitive?.contentOrNull?.let { it to false }
-                    ?: obj["prompt"]?.jsonPrimitive?.contentOrNull?.let { it to true }
-                    ?: obj["input"]?.jsonPrimitive?.contentOrNull?.let { it to true }
-                    ?: obj["code"]?.jsonPrimitive?.contentOrNull?.let { it to false }
-                    ?: obj.entries.firstOrNull()?.let { (k, v) ->
-                        v.jsonPrimitive.contentOrNull?.let { it to (k in setOf("query", "url", "text", "prompt")) }
-                    }
-                candidate
-            }
+                obj["path"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+            "exec_js" -> obj["code"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+            else -> null
+        } ?: run {
+            obj["query"]?.jsonPrimitive?.contentOrNull?.let { it to true }
+                ?: obj["url"]?.jsonPrimitive?.contentOrNull?.let { it to true }
+                ?: obj["command"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+                ?: obj["cmd"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+                ?: obj["path"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+                ?: obj["file"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+                ?: obj["filename"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+                ?: obj["prompt"]?.jsonPrimitive?.contentOrNull?.let { it to true }
+                ?: obj["input"]?.jsonPrimitive?.contentOrNull?.let { it to true }
+                ?: obj["code"]?.jsonPrimitive?.contentOrNull?.let { it to false }
+                ?: obj.entries.firstOrNull()?.let { (k, v) ->
+                    v.jsonPrimitive.contentOrNull?.let { it to (k in setOf("query", "url", "text", "prompt")) }
+                }
         } ?: return@runCatching null
-        formatExtractedArg(rawVal, shouldQuote)
+        formatExtractedArg(pair.first, pair.second)
     }.getOrNull()
 
     if (fromJson != null) return fromJson
