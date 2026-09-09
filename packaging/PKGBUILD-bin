@@ -1,6 +1,6 @@
 # Maintainer: radiocycle <https://github.com/radiocycle>
 pkgname=llmhub-bin
-pkgver=1.0.0
+pkgver=1.1.0
 pkgrel=1
 pkgdesc="LLMHub Desktop - LLM client with auto-rotation, failover, custom endpoints, and reasoning support (precompiled binary)"
 arch=('x86_64')

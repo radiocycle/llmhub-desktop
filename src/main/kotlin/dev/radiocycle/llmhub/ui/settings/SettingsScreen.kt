@@ -458,7 +458,7 @@ fun SettingsScreen(
 
             Section("About")
             Text(
-                "LLMHub Desktop for Linux / Arch Linux — unified interface over OpenAI, Anthropic, Google and any compatible endpoint, " +
+                "LLMHub Desktop v1.1.0 for Linux / Arch Linux — unified interface over OpenAI, Anthropic, Google and any compatible endpoint, " +
                     "with automatic failover, reasoning support, and tools. Data is stored locally in standard Linux XDG directories (~/.config/llmhub and ~/.local/share/llmhub).",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

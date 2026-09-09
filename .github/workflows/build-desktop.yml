@@ -84,13 +84,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          VERSION="$(grep -m1 '^version = ' build.gradle.kts | cut -d '"' -f2)"
           TAG_NAME="${{ github.ref_name }}"
           if [ "$TAG_NAME" = "main" ]; then
-            TAG_NAME="v1.0.0"
+            TAG_NAME="v${VERSION}"
           fi
 
-          cat << 'NOTES' > release-notes.md
-          ### LLMHub Desktop for Linux (Arch Linux, Debian/Ubuntu, Standalone)
+          cat << NOTES > release-notes.md
+          ### LLMHub Desktop v${VERSION} for Linux (Arch Linux, Debian/Ubuntu, Standalone)
 
           Features:
           - Full Material 3 Expressive UI adhering strictly to LLMHub design
