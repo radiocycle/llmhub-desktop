@@ -26,8 +26,12 @@ jobs:
 
       - name: Setup AppImageTool
         run: |
-          sudo wget -q -O /usr/local/bin/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage" || true
-          sudo chmod +x /usr/local/bin/appimagetool || true
+          wget -q "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage" -O /tmp/appimagetool.AppImage
+          chmod +x /tmp/appimagetool.AppImage
+          cd /tmp
+          ./appimagetool.AppImage --appimage-extract
+          sudo mv squashfs-root /opt/appimagetool
+          sudo ln -sf /opt/appimagetool/AppRun /usr/local/bin/appimagetool
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -36,7 +40,21 @@ jobs:
         run: ./gradlew createDistributable packageDeb --no-daemon
 
       - name: Build AppImage
-        run: ./gradlew packageAppImage --no-daemon || true
+        run: |
+          APPDIR="build/AppDir"
+          rm -rf "$APPDIR"
+          mkdir -p "$APPDIR"
+          cp -r build/compose/binaries/main/app/llmhub/* "$APPDIR/"
+          cp packaging/llmhub.desktop "$APPDIR/llmhub.desktop"
+          cp src/main/resources/icon.png "$APPDIR/llmhub.png"
+          cp src/main/resources/icon.png "$APPDIR/.DirIcon"
+          cat << 'EOF' > "$APPDIR/AppRun"
+#!/bin/sh
+HERE="$(dirname "$(readlink -f "${0}")")"
+exec "$HERE/bin/llmhub" "$@"
+EOF
+          chmod +x "$APPDIR/AppRun"
+          ARCH=x86_64 /usr/local/bin/appimagetool "$APPDIR" "build/compose/binaries/main/llmhub-linux-x86_64.AppImage"
 
       - name: Prepare Release Artifacts
         run: |
