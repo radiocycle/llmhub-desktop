@@ -162,28 +162,39 @@ fun DesktopAppShell(container: AppContainer) {
                             }
                             tab = entry
                         },
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(14.dp),
                         colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            selectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+                            selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            unselectedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                         modifier = Modifier.padding(vertical = 2.dp),
                     )
                 }
 
-                HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                HorizontalDivider(Modifier.padding(vertical = 10.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
 
                 // If in Chat tab: show Conversation list with New Chat button
                 if (tab == DesktopTab.CHAT) {
-                    NavigationDrawerItem(
-                        label = { Text("New chat") },
-                        icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                        selected = false,
+                    Surface(
                         onClick = { chatViewModel.newChat() },
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.padding(vertical = 2.dp),
-                    )
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    ) {
+                        Row(
+                            Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Icon(Icons.Rounded.Add, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                            Text("New chat", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
 
                     Spacer(Modifier.height(8.dp))
 
@@ -218,10 +229,11 @@ fun DesktopAppShell(container: AppContainer) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(14.dp))
+                                    .padding(vertical = 2.dp)
+                                    .clip(RoundedCornerShape(12.dp))
                                     .background(
                                         if (isSelected) MaterialTheme.colorScheme.surfaceContainerHighest
-                                        else MaterialTheme.colorScheme.surfaceContainerLow
+                                        else androidx.compose.ui.graphics.Color.Transparent
                                     )
                                     .clickable { chatViewModel.open(conversation.id) }
                                     .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -230,6 +242,8 @@ fun DesktopAppShell(container: AppContainer) {
                                 Text(
                                     text = conversation.title,
                                     style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f),

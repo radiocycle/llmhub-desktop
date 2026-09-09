@@ -2,6 +2,7 @@ package dev.radiocycle.llmhub.ui.chat
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bolt
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.rounded.NoteAdd
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.Terminal
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -44,8 +47,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.radiocycle.llmhub.data.model.ChatMessage
@@ -72,17 +77,22 @@ fun MessageItem(
 
 @Composable
 private fun UserMessage(message: ChatMessage) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+    ) {
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 24.dp, bottomEnd = 6.dp),
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 4.dp),
             modifier = Modifier.widthIn(max = 680.dp),
+            tonalElevation = 1.dp,
         ) {
             Text(
                 text = message.content,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(horizontal = 18.dp, vertical = 13.dp),
+                lineHeight = 23.sp,
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
             )
         }
     }
@@ -90,7 +100,10 @@ private fun UserMessage(message: ChatMessage) {
 
 @Composable
 private fun AssistantMessage(message: ChatMessage, showCursor: Boolean) {
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         if (message.providerName != null) {
             ProviderBadge(message.providerName, message.model)
         }
@@ -99,7 +112,7 @@ private fun AssistantMessage(message: ChatMessage, showCursor: Boolean) {
 
         if (message.reasoning.isNotBlank()) {
             CollapsibleBlock(
-                title = "Reasoning",
+                title = "Thinking process",
                 icon = Icons.Rounded.Bolt,
                 body = message.reasoning,
                 container = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -110,11 +123,14 @@ private fun AssistantMessage(message: ChatMessage, showCursor: Boolean) {
             val body = if (showCursor) message.content + "▍" else message.content
             MarkdownText(body, Modifier.fillMaxWidth())
         } else if (showCursor && message.error == null) {
-            Text("▍", style = MaterialTheme.typography.bodyLarge)
+            Text("▍", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
         }
 
         message.toolCalls.takeIf { it.isNotEmpty() }?.let { calls ->
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.padding(top = 2.dp),
+            ) {
                 calls.forEach { call -> ToolChip(call.name) }
             }
         }
@@ -123,8 +139,9 @@ private fun AssistantMessage(message: ChatMessage, showCursor: Boolean) {
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                shape = RoundedCornerShape(18.dp),
-                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.4f)),
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
             ) {
                 Row(
                     Modifier.padding(14.dp),
@@ -141,38 +158,49 @@ private fun AssistantMessage(message: ChatMessage, showCursor: Boolean) {
 
 @Composable
 private fun ProviderBadge(providerName: String, model: String?) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Box(
-            Modifier
-                .size(8.dp)
-                .clip(RoundedCornerShape(50))
-                .background(MaterialTheme.colorScheme.tertiary)
-        )
-        Text(
-            text = buildString {
-                append(providerName)
-                model?.takeIf { it.isNotBlank() }?.let { append(" · $it") }
-            },
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.7f),
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.tertiary)
+            )
+            Text(
+                text = buildString {
+                    append(providerName)
+                    model?.takeIf { it.isNotBlank() }?.let { append(" · $it") }
+                },
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
 @Composable
 private fun SwitchNotice(note: String) {
     Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
+        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f),
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Row(
-            Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(Icons.Rounded.SwapHoriz, contentDescription = null, Modifier.size(16.dp))
-            Text(note, style = MaterialTheme.typography.labelMedium)
+            Icon(Icons.Rounded.SwapHoriz, contentDescription = null, Modifier.size(15.dp))
+            Text(note, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -180,17 +208,18 @@ private fun SwitchNotice(note: String) {
 @Composable
 private fun ToolChip(name: String) {
     Surface(
-        color = MaterialTheme.colorScheme.tertiaryContainer,
+        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f),
         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)),
     ) {
         Row(
-            Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Icon(iconForTool(name), contentDescription = null, Modifier.size(15.dp))
-            Text(name, style = MaterialTheme.typography.labelMedium)
+            Icon(iconForTool(name), contentDescription = null, Modifier.size(14.dp))
+            Text(name, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -198,28 +227,29 @@ private fun ToolChip(name: String) {
 @Composable
 private fun ToolMessage(message: ChatMessage) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        message.toolResults.forEach { result -> ToolResultCard(result) }
-    }
-}
-
-@Composable
-private fun ToolResultCard(result: ToolResult) {
-    val running = result.content == "…running"
-    CollapsibleBlock(
-        title = buildString {
-            append(result.name)
-            when {
-                running -> append(" · running")
-                result.isError -> append(" · failed")
-                result.durationMs > 0 -> append(" · ${result.durationMs} ms")
+        if (message.toolResults.isNotEmpty()) {
+            message.toolResults.forEach { result ->
+                val title = "${result.name}${if (result.isError) " (failed)" else ""}"
+                val icon = iconForTool(result.name)
+                CollapsibleBlock(
+                    title = title,
+                    icon = icon,
+                    body = result.content,
+                    container = if (result.isError) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
+                    else MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.6f),
+                    monospace = true,
+                )
             }
-        },
-        icon = iconForTool(result.name),
-        body = result.content,
-        container = if (result.isError) MaterialTheme.colorScheme.errorContainer
-        else MaterialTheme.colorScheme.surfaceContainerHigh,
-        monospace = true,
-    )
+        } else if (message.content.isNotBlank()) {
+            CollapsibleBlock(
+                title = "Tool output",
+                icon = Icons.Rounded.Code,
+                body = message.content,
+                container = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.6f),
+                monospace = true,
+            )
+        }
+    }
 }
 
 @Composable
@@ -227,50 +257,72 @@ private fun CollapsibleBlock(
     title: String,
     icon: ImageVector,
     body: String,
-    container: androidx.compose.ui.graphics.Color,
+    container: Color,
     monospace: Boolean = false,
 ) {
     var expanded by remember { mutableStateOf(false) }
     Surface(
         color = container,
-        shape = RoundedCornerShape(18.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(),
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+        modifier = Modifier.fillMaxWidth().animateContentSize(),
     ) {
         Column {
             Row(
                 Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
                     .clickable { expanded = !expanded }
-                    .padding(horizontal = 14.dp, vertical = 11.dp),
+                    .padding(horizontal = 14.dp, vertical = 9.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(icon, contentDescription = null, Modifier.size(18.dp))
-                Text(title, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(17.dp),
+                )
+                Text(
+                    title,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
                 Icon(
                     if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
                     contentDescription = if (expanded) "Collapse" else "Expand",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp),
                 )
             }
             AnimatedVisibility(expanded) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(start = 14.dp, end = 14.dp, bottom = 12.dp)
-                ) {
-                    if (monospace) {
-                        Text(
-                            text = body,
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            lineHeight = 17.sp,
-                            modifier = Modifier.horizontalScroll(rememberScrollState()),
-                        )
-                    } else {
-                        Text(body, style = MaterialTheme.typography.bodyMedium)
+                Column {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.4f))
+                            .padding(14.dp)
+                    ) {
+                        if (monospace) {
+                            Text(
+                                text = body,
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                lineHeight = 17.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            )
+                        } else {
+                            Text(
+                                text = body,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                lineHeight = 21.sp,
+                            )
+                        }
                     }
                 }
             }
@@ -288,5 +340,5 @@ private fun iconForTool(name: String): ImageVector = when (name) {
     "edit_file" -> Icons.Rounded.EditNote
     "delete_file" -> Icons.Rounded.DeleteOutline
     "list_files" -> Icons.Rounded.FolderOpen
-    else -> Icons.Rounded.Bolt
+    else -> Icons.Rounded.Code
 }
