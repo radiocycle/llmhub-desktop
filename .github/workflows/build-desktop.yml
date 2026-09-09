@@ -28,7 +28,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libfuse2 fakeroot
-          # Download appimagetool for AppImage creation
           sudo wget -q -O /usr/local/bin/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage" || true
           sudo chmod +x /usr/local/bin/appimagetool || true
 
@@ -38,7 +37,7 @@ jobs:
       - name: Build Desktop Distributable
         run: ./gradlew createDistributable packageDeb --no-daemon
 
-      - name: Build AppImage (if tool available)
+      - name: Build AppImage
         run: ./gradlew packageAppImage --no-daemon || true
 
       - name: Prepare Release Artifacts
@@ -77,28 +76,32 @@ jobs:
           if [ "$TAG_NAME" = "main" ]; then
             TAG_NAME="v1.0.0"
           fi
-          
+
+          cat << 'NOTES' > release-notes.md
+          ### LLMHub Desktop for Linux (Arch Linux, Debian/Ubuntu, Standalone)
+
+          Features:
+          - Full Material 3 Expressive UI adhering strictly to LLMHub design
+          - Multi-provider rotation and failover (OpenAI, Anthropic, Google Gemini, Ollama/LM Studio)
+          - OpenAI Wire (/chat/completions) & Responses (/responses) modes
+          - Customizable reasoning effort & parameter names
+          - Collapsible reasoning blocks, fuzzy search model picker
+          - Native Linux XDG storage (~/.config/llmhub and ~/.local/share/llmhub)
+          - Arch Linux PKGBUILD included for easy makepkg / yay / paru installation
+
+          Download options:
+          - Standalone Tarball: `llmhub-linux-x86_64.tar.gz` (extract and run `bin/llmhub`)
+          - AppImage: `llmhub-linux-x86_64.AppImage` (single executable)
+          - Debian/Ubuntu: `llmhub-linux-amd64.deb`
+          - Arch Linux: use `packaging/PKGBUILD` or `packaging/PKGBUILD-bin`
+          NOTES
+
           # Create or update release
           gh release delete "$TAG_NAME" --yes || true
           git tag -f "$TAG_NAME" || true
           git push -f origin "$TAG_NAME" || true
-          
+
           gh release create "$TAG_NAME" \
             release-artifacts/* \
             --title "LLMHub Desktop $TAG_NAME" \
-            --notes "### LLMHub Desktop for Linux (Arch Linux, Debian/Ubuntu, Standalone)
-
-Features:
-- Full Material 3 Expressive UI adhering strictly to LLMHub design
-- Multi-provider rotation and failover (OpenAI, Anthropic, Google Gemini, Ollama/LM Studio)
-- OpenAI Wire (/chat/completions) & Responses (/responses) modes
-- Customizable reasoning effort & parameter names
-- Collapsible reasoning blocks, fuzzy search model picker
-- Native Linux XDG storage (~/.config/llmhub and ~/.local/share/llmhub)
-- Arch Linux PKGBUILD included for easy makepkg / yay / paru installation
-
-Download options:
-- **Standalone Tarball**: \`llmhub-linux-x86_64.tar.gz\` (extract and run \`bin/llmhub\`)
-- **AppImage**: \`llmhub-linux-x86_64.AppImage\` (single executable)
-- **Debian/Ubuntu**: \`llmhub-linux-amd64.deb\`
-- **Arch Linux**: use \`packaging/PKGBUILD\` or \`packaging/PKGBUILD-bin\`"
+            --notes-file release-notes.md
