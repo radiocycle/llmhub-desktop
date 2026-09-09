@@ -1,0 +1,29 @@
+# Maintainer: radiocycle <https://github.com/radiocycle>
+pkgname=llmhub-bin
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="LLMHub Desktop - LLM client with auto-rotation, failover, custom endpoints, and reasoning support (precompiled binary)"
+arch=('x86_64')
+url="https://github.com/radiocycle/llmhub-desktop"
+license=('Apache-2.0')
+depends=('gtk3')
+provides=('llmhub')
+conflicts=('llmhub')
+source=("llmhub-linux-x86_64-${pkgver}.tar.gz::https://github.com/radiocycle/llmhub-desktop/releases/download/v${pkgver}/llmhub-linux-x86_64.tar.gz"
+        "https://raw.githubusercontent.com/radiocycle/llmhub-desktop/v${pkgver}/packaging/llmhub.desktop"
+        "https://raw.githubusercontent.com/radiocycle/llmhub-desktop/v${pkgver}/src/main/resources/icon.png")
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP')
+
+package() {
+    install -dm755 "${pkgdir}/opt/llmhub"
+    cp -r "${srcdir}/llmhub"/* "${pkgdir}/opt/llmhub/"
+    chmod +x "${pkgdir}/opt/llmhub/bin/llmhub"
+
+    install -dm755 "${pkgdir}/usr/bin"
+    ln -sf /opt/llmhub/bin/llmhub "${pkgdir}/usr/bin/llmhub"
+
+    install -Dm644 "${srcdir}/llmhub.desktop" "${pkgdir}/usr/share/applications/llmhub.desktop"
+    install -Dm644 "${srcdir}/icon.png" "${pkgdir}/usr/share/icons/hicolor/512x512/apps/llmhub.png"
+}

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=LLMHub
+Comment=LLM client with auto-rotation, failover, and tools
+Exec=llmhub %u
+Icon=llmhub
+Terminal=false
+Type=Application
+Categories=Utility;Development;Network;
+StartupWMClass=dev-radiocycle-llmhub-MainKt
