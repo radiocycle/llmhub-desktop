@@ -39,7 +39,7 @@ if [ -z "$TAG" ]; then
     TAG="$(curl -sSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null | grep '"tag_name":' | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' || true)"
 fi
 if [ -z "$TAG" ]; then
-    TAG="v1.1.0"
+    TAG="v1.2.0"
 fi
 echo -e "  Using version: ${BOLD}${TAG}${NC}"
 

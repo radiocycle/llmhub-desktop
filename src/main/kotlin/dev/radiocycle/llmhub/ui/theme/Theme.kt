@@ -5,9 +5,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import dev.radiocycle.llmhub.data.model.ThemeMode
 
+import dev.radiocycle.llmhub.data.model.AppTheme
+
 @Composable
 fun LlmHubTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
+    colorTheme: AppTheme = AppTheme.DEFAULT,
     content: @Composable () -> Unit,
 ) {
     val dark = when (themeMode) {
@@ -15,7 +18,7 @@ fun LlmHubTheme(
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
     }
-    val colorScheme = if (dark) DarkColors else LightColors
+    val colorScheme = themeColorScheme(colorTheme, dark)
 
     MaterialTheme(
         colorScheme = colorScheme,

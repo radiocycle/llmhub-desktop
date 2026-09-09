@@ -33,6 +33,46 @@ enum class ThemeMode {
 }
 
 @Serializable
+enum class AppTheme {
+    @SerialName("default") DEFAULT,
+    @SerialName("catppuccin") CATPPUCCIN,
+    @SerialName("nord") NORD,
+    @SerialName("dracula") DRACULA,
+    @SerialName("tokyo_night") TOKYO_NIGHT,
+    @SerialName("gruvbox") GRUVBOX,
+    @SerialName("oled") OLED,
+    @SerialName("emerald") EMERALD,
+    @SerialName("sunset") SUNSET,
+    @SerialName("solarized") SOLARIZED;
+
+    val label: String get() = when (this) {
+        DEFAULT -> "LLMHub (Violet)"
+        CATPPUCCIN -> "Catppuccin"
+        NORD -> "Nord"
+        DRACULA -> "Dracula"
+        TOKYO_NIGHT -> "Tokyo Night"
+        GRUVBOX -> "Gruvbox"
+        OLED -> "Pure Black"
+        EMERALD -> "Emerald"
+        SUNSET -> "Sunset"
+        SOLARIZED -> "Solarized"
+    }
+
+    val previewColorHex: Long get() = when (this) {
+        DEFAULT -> 0xFF9A6BFF
+        CATPPUCCIN -> 0xFFCBA6F7
+        NORD -> 0xFF88C0D0
+        DRACULA -> 0xFFBD93F9
+        TOKYO_NIGHT -> 0xFF7AA2F7
+        GRUVBOX -> 0xFFFE8019
+        OLED -> 0xFFFFFFFF
+        EMERALD -> 0xFF10B981
+        SUNSET -> 0xFFFF7043
+        SOLARIZED -> 0xFF268BD2
+    }
+}
+
+@Serializable
 data class RotationSettings(
     val strategy: RotationStrategy = RotationStrategy.FAILOVER,
     /** Total endpoints tried for a single turn before giving up. */
@@ -97,6 +137,7 @@ data class AppSettings(
     val maxTokens: Int = 4096,
     val streamResponses: Boolean = true,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val colorTheme: AppTheme = AppTheme.DEFAULT,
     val dynamicColor: Boolean = true,
     /** Render replies with the full Markdown + LaTeX engine instead of the lightweight one. */
     val richRendering: Boolean = true,

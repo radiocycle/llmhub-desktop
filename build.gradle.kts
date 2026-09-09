@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "dev.radiocycle.llmhub"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
@@ -39,7 +39,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.AppImage, TargetFormat.Deb)
             packageName = "llmhub"
-            packageVersion = "1.1.0"
+            packageVersion = "1.2.0"
             description = "LLMHub Desktop - Multi-provider LLM client with auto-rotation, failover, and tools"
             copyright = "© 2026 radiocycle"
             vendor = "radiocycle"

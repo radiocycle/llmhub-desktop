@@ -25,7 +25,10 @@ fun main() = application {
         title = "LLMHub",
         icon = painterResource("icon.png"),
     ) {
-        LlmHubTheme(themeMode = settings.themeMode) {
+        LlmHubTheme(
+            themeMode = settings.themeMode,
+            colorTheme = settings.colorTheme,
+        ) {
             DesktopAppShell(container)
         }
     }

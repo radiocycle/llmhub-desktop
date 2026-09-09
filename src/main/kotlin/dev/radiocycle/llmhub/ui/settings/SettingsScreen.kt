@@ -1,7 +1,9 @@
 package dev.radiocycle.llmhub.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -14,9 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import dev.radiocycle.llmhub.data.model.AppTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.FileUpload
@@ -446,6 +452,11 @@ fun SettingsScreen(
 
             Section("Appearance")
 
+            Text(
+                "Theme Mode",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ThemeMode.entries.forEach { mode ->
                     FilterChip(
@@ -456,9 +467,36 @@ fun SettingsScreen(
                 }
             }
 
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "Color Theme",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                AppTheme.entries.forEach { theme ->
+                    FilterChip(
+                        selected = settings.colorTheme == theme,
+                        onClick = { repository.update { it.copy(colorTheme = theme) } },
+                        leadingIcon = {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(theme.previewColorHex))
+                            )
+                        },
+                        label = { Text(theme.label) },
+                    )
+                }
+            }
+
             Section("About")
             Text(
-                "LLMHub Desktop v1.1.0 for Linux / Arch Linux — unified interface over OpenAI, Anthropic, Google and any compatible endpoint, " +
+                "LLMHub Desktop v1.2.0 for Linux / Arch Linux — unified interface over OpenAI, Anthropic, Google and any compatible endpoint, " +
                     "with automatic failover, reasoning support, and tools. Data is stored locally in standard Linux XDG directories (~/.config/llmhub and ~/.local/share/llmhub).",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
