@@ -289,8 +289,10 @@ private fun MessageList(state: ChatUiState) {
                     }
                 }
 
-                val hasSubsequentToolResult = remember(state.messages, index) {
-                    state.messages.getOrNull(index + 1)?.role == Role.TOOL
+                val matchingToolCalls = remember(state.messages, index) {
+                    if (message.role == Role.TOOL && index > 0) {
+                        state.messages.subList(0, index).lastOrNull { it.role == Role.ASSISTANT }?.toolCalls.orEmpty()
+                    } else emptyList()
                 }
 
                 MessageItem(
@@ -298,7 +300,7 @@ private fun MessageList(state: ChatUiState) {
                     isLast = message.id == state.messages.lastOrNull()?.id,
                     isStreaming = state.isStreaming,
                     showProviderBadge = showProviderBadge,
-                    hasSubsequentToolResult = hasSubsequentToolResult,
+                    matchingToolCalls = matchingToolCalls,
                 )
             }
             if (state.isStreaming) {
