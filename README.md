@@ -19,6 +19,20 @@
 
 ---
 
+## Quick Install (One-Liner)
+
+Install into `~/.local` (no root/sudo required):
+```bash
+curl -fsSL https://raw.githubusercontent.com/radiocycle/llmhub-desktop/main/install.sh | bash
+```
+This automatically:
+1. Downloads the latest release tarball for `x86_64` Linux.
+2. Extracts app libraries into `~/.local/lib/llmhub/`.
+3. Creates the launcher at `~/.local/bin/llmhub`.
+4. Installs the desktop launcher entry and icon into `~/.local/share/applications/` and `~/.local/share/icons/`.
+
+---
+
 ## Installation on Arch Linux
 
 ### Option 1: Build from source with `makepkg`
