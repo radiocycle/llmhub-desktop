@@ -24,10 +24,8 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Install packaging tools
+      - name: Setup AppImageTool
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libfuse2 fakeroot
           sudo wget -q -O /usr/local/bin/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage" || true
           sudo chmod +x /usr/local/bin/appimagetool || true
 
