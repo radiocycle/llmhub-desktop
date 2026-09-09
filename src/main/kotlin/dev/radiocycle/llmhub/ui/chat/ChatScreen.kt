@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,6 +73,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.radiocycle.llmhub.data.model.Provider
+import dev.radiocycle.llmhub.data.model.Role
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -268,13 +270,35 @@ private fun MessageList(state: ChatUiState) {
             state = listState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(state.messages, key = { it.id }) { message ->
+            itemsIndexed(state.messages, key = { _, it -> it.id }) { index, message ->
+                val showProviderBadge = remember(state.messages, index) {
+                    if (message.role != Role.ASSISTANT || message.providerName == null) {
+                        false
+                    } else {
+                        val lastUser = state.messages.subList(0, index).indexOfLast { it.role == Role.USER }
+                        val lastAssistantIndex = state.messages.subList(0, index).indexOfLast { it.role == Role.ASSISTANT }
+                        val lastAssistant = if (lastAssistantIndex >= 0) state.messages[lastAssistantIndex] else null
+                        when {
+                            lastUser > lastAssistantIndex -> true
+                            lastAssistant == null -> true
+                            lastAssistant.providerName != message.providerName || lastAssistant.model != message.model -> true
+                            else -> false
+                        }
+                    }
+                }
+
+                val hasSubsequentToolResult = remember(state.messages, index) {
+                    state.messages.getOrNull(index + 1)?.role == Role.TOOL
+                }
+
                 MessageItem(
                     message = message,
                     isLast = message.id == state.messages.lastOrNull()?.id,
                     isStreaming = state.isStreaming,
+                    showProviderBadge = showProviderBadge,
+                    hasSubsequentToolResult = hasSubsequentToolResult,
                 )
             }
             if (state.isStreaming) {
