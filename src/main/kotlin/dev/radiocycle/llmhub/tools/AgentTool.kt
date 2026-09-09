@@ -44,3 +44,5 @@ fun JsonObjectBuilder.putBool(name: String, description: String) = putJsonObject
     put("type", "boolean")
     put("description", description)
 }
+
+fun JsonObjectBuilder.booleanProp(name: String, description: String) = putBool(name, description)

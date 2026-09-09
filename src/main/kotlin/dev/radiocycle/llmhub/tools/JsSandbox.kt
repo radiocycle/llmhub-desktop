@@ -3,6 +3,7 @@ package dev.radiocycle.llmhub.tools
 import dev.radiocycle.llmhub.core.AppJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -50,7 +51,7 @@ class JsSandbox {
             };
             (async () => {
                 try {
-                    const __out = eval(${AppJson.encodeToString(kotlinx.serialization.builtins.serializer(), code)});
+                    const __out = eval(${AppJson.encodeToString(code)});
                     const res = (__out && typeof __out.then === 'function') ? await __out : __out;
                     process.stdout.write(JSON.stringify({ logs: __logs, result: __show(res), error: null }));
                 } catch (e) {

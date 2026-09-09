@@ -94,12 +94,11 @@ jobs:
           - Arch Linux: use `packaging/PKGBUILD` or `packaging/PKGBUILD-bin`
           NOTES
 
-          # Create or update release
-          gh release delete "$TAG_NAME" --yes || true
-          git tag -f "$TAG_NAME" || true
-          git push -f origin "$TAG_NAME" || true
+          # Clean up any existing release and tag
+          gh release delete "$TAG_NAME" --yes --cleanup-tag || true
 
           gh release create "$TAG_NAME" \
             release-artifacts/* \
+            --target "${{ github.sha }}" \
             --title "LLMHub Desktop $TAG_NAME" \
             --notes-file release-notes.md
